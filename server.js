@@ -339,4 +339,39 @@ app.post("/chat", async (req, res) => {
   const { text } = req.body;
   console.log("POST /chat - user:", req.session.user.Nome, "text type:", typeof text);
 
-  if (!text
+  if (!text || !text.trim()) return res.json({ success:false, error: "Mensagem vazia" });
+
+  const now = new Date();
+  const timestamp = Math.floor(Date.now() / 1000);
+
+  try {
+    await turso.execute({
+      sql: "INSERT INTO dChat (Nome, Mensagem, Data, Hora, Timestamp) VALUES (?, ?, ?, ?, ?)",
+      args: [
+        String(req.session.user.Nome),
+        String(text.trim()),
+        String(now.toISOString().split("T")[0]),
+        String(now.toTimeString().split(" ")[0]),
+        Number(timestamp)
+      ]
+    });
+    console.log("POST /chat: inserido com sucesso");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("ERRO /chat INSERT:", err);
+    res.status(500).json({ success:false, error: err.message });
+  }
+});
+
+// Logout simples
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true });
+  });
+});
+
+// ---------------- INICIALIZAÇÃO ----------------
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
