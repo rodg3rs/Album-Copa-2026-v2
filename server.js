@@ -1,15 +1,23 @@
 // server.js
-require("dotenv").config();
-const express = require("express");
-const bodyParser = require("body-parser");
-const session = require("express-session");
-const SQLiteStore = require("connect-sqlite3")(session);
-const nodemailer = require("nodemailer");
-const cors = require("cors");
-const path = require("path");
+import "dotenv/config";
+import express from "express";
+import bodyParser from "body-parser";
+import session from "express-session";
+import connectSQLite3 from "connect-sqlite3";
+import nodemailer from "nodemailer";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url"; // Necessário para recriar o __dirname em ES Modules
+import { createClient } from "@libsql/client";
+
+// Configuração para fazer o __dirname funcionar em ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Inicializar o repositório de sessão do SQLite
+const SQLiteStore = connectSQLite3(session);
 
 // Conexão com Turso (SQLite remoto)
-const { createClient } = require("@libsql/client");
 const turso = createClient({
   url: process.env.TURSO_URL,
   authToken: process.env.TURSO_TOKEN
@@ -75,7 +83,6 @@ app.post("/cadastro", async (req, res) => {
   }
 });
 
-
 // Login
 app.post("/login", async (req, res) => {
   const { nome, senha } = req.body;
@@ -114,23 +121,23 @@ app.get("/controle", async (req, res) => {
     const stamps = result.rows.map(r => r.Stamp);
 
     // Lista completa de figurinhas
-  const teams = [
-    "MEX","RSA","KOR","CZE","CAN","BIH","QAT","SUI","BRA","MAR","HAI","SCO","USA","PAR","AUS","TUR",
-    "GER","CUW","CIV","ECU","NED","JPN","SWE","TUN","BEL","EGY","IRN","NZL","ESP","CPV","KSA","URU",
-    "FRA","SEN","IRQ","NOR","ARG","ALG","AUT","JOR","POR","COD","UZB","COL","ENG","CRO","GHA","PAN"
-  ];
+    const teams = [
+      "MEX","RSA","KOR","CZE","CAN","BIH","QAT","SUI","BRA","MAR","HAI","SCO","USA","PAR","AUS","TUR",
+      "GER","CUW","CIV","ECU","NED","JPN","SWE","TUN","BEL","EGY","IRN","NZL","ESP","CPV","KSA","URU",
+      "FRA","SEN","IRQ","NOR","ARG","ALG","AUT","JOR","POR","COD","UZB","COL","ENG","CRO","GHA","PAN"
+    ];
     const allStamps = [];
 
-	// Seleções
+    // Seleções
     for (let team of teams) {
       for (let i=1;i<=20;i++) allStamps.push(`${team}${i}`);
     }
     
-	// FWC 0-19
-	for (let i=0;i<=19;i++) allStamps.push(`FWC${i}`);
+    // FWC 0-19
+    for (let i=0;i<=19;i++) allStamps.push(`FWC${i}`);
     
-	// Coca-Cola CC1-CC14
-	for (let i=1;i<=14;i++) allStamps.push(`CC${i}`);
+    // Coca-Cola CC1-CC14
+    for (let i=1;i<=14;i++) allStamps.push(`CC${i}`);
 
     const total = allStamps.length; // 994 figurinhas
     const marcadas = stamps.length;
@@ -186,7 +193,6 @@ app.post("/controle", async (req, res) => {
   }
 });
 
-
 // Trocas (Eu Quero / Eu Troco)
 app.get("/troco", async (req, res) => {
   if (!req.session.user) return res.status(403).json({ success: false, error: "Não logado" });
@@ -194,20 +200,16 @@ app.get("/troco", async (req, res) => {
   const userId = parseInt(req.session.user.ID);
 
   try {
-    // 1. Coleta todas as suas figurinhas repetidas (Tipo R)
     const repRes = await turso.execute({
       sql: "SELECT Stamp FROM dControle WHERE ID = ? AND Tipo = 'R'",
       args: [userId]
     });
     const minhasRepetidas = new Set(repRes.rows.map(r => r.Stamp));
 
-    // Se você não tiver nenhuma repetida, não há o que cruzar. Retorna vazio rápido.
     if (minhasRepetidas.size === 0) {
       return res.json({ success: true, users: [], result: [] });
     }
 
-    // 2. Busca quais usuários NÃO possuem as figurinhas que você tem para repetir (Álbum Tipo A)
-    // Usamos o CROSS JOIN com dManos para testar suas repetidas contra todos os usuários
     let sql = `
       SELECT dManos.Nome, s.Stamp
       FROM (
@@ -231,13 +233,11 @@ app.get("/troco", async (req, res) => {
     
     const faltRes = await turso.execute({ sql, args });
 
-    // 3. Agrupamento do cruzamento por usuário e por sigla (incluindo FWC e CC)
     const result = [];
     const users = new Set();
 
     faltRes.rows.forEach(r => {
       if (minhasRepetidas.has(r.Stamp)) {
-        // Extrai a sigla da equipe: "MEX15" vira "MEX", "FWC12" vira "FWC", "CC3" vira "CC"
         const team = r.Stamp.replace(/[0-9]+$/, "");
         
         let row = result.find(x => x.user === r.Nome && x.team === team);
@@ -263,8 +263,6 @@ app.get("/quero", async (req, res) => {
   const userId = parseInt(req.session.user.ID);
 
   try {
-    // LÓGICA INTELIGENTE: Busca as repetidas (Tipo 'R') dos OUTROS usuários,
-    // mas APENAS se você NÃO tiver essa figurinha no seu álbum (Tipo 'A')
     let sql = `
       SELECT dManos.Nome, r.Stamp
       FROM dControle r
@@ -287,12 +285,10 @@ app.get("/quero", async (req, res) => {
     
     const repRes = await turso.execute({ sql, args });
 
-    // Agrupamento do resultado por usuário e sigla (MEX, FWC, CC...)
     const result = [];
     const users = new Set();
 
     repRes.rows.forEach(r => {
-      // Extrai a sigla da equipe (Ex: "MEX12" -> "MEX", "FWC5" -> "FWC")
       const team = r.Stamp.replace(/[0-9]+$/, "");
       
       let row = result.find(x => x.user === r.Nome && x.team === team);
@@ -343,40 +339,4 @@ app.post("/chat", async (req, res) => {
   const { text } = req.body;
   console.log("POST /chat - user:", req.session.user.Nome, "text type:", typeof text);
 
-  if (!text || !text.trim()) return res.json({ success:false, error: "Mensagem vazia" });
-
-  const now = new Date();
-  const timestamp = Math.floor(Date.now() / 1000);
-
-  try {
-    await turso.execute({
-      sql: "INSERT INTO dChat (Nome, Mensagem, Data, Hora, Timestamp) VALUES (?, ?, ?, ?, ?)",
-      args: [
-        String(req.session.user.Nome),
-        String(text.trim()),
-        String(now.toISOString().split("T")[0]),
-        String(now.toTimeString().split(" ")[0]),
-        Number(timestamp)
-      ]
-    });
-    console.log("POST /chat: inserido com sucesso");
-    res.json({ success: true });
-  } catch (err) {
-    console.error("ERRO /chat INSERT:", err);
-    res.status(500).json({ success:false, error: err.message });
-  }
-});
-
-
-// Logout simples
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
-});
-
-// ---------------- INICIALIZAÇÃO ----------------
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+  if (!text
