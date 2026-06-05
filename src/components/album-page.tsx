@@ -89,7 +89,10 @@ function AlbumContent({ tipo }: { tipo: "A" | "R" }) {
 
   return (
     <>
-      <section className="sticky top-[56px] z-20 border-b-2 border-border bg-background px-3 py-1.5 shadow-sm">
+<section 
+        className="sticky z-20 border-b-2 border-border bg-background px-3 py-2.5 shadow-md"
+        style={{ top: "calc(var(--sat, 0px) + 3.5rem)" }} 
+      >
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-sm font-black leading-tight text-foreground">
@@ -102,28 +105,30 @@ function AlbumContent({ tipo }: { tipo: "A" | "R" }) {
             )}
           </div>
           {tipo === "A" && stats && (
-            <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+            <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
               <div
                 className="h-full rounded-full transition-all"
                 style={{ width: `${percent}%`, background: "var(--gradient-gold)" }}
               />
             </div>
           )}
-          <button
-            onClick={save}
-            disabled={saving || loading}
-            className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground shadow-[var(--shadow-card)] active:scale-95 disabled:opacity-60"
-          >
-            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-            Salvar
-          </button>
-          <button
-            onClick={goBack}
-            className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-bold text-foreground active:scale-95"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Voltar
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={save}
+              disabled={saving || loading}
+              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground shadow-[var(--shadow-card)] active:scale-95 disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+              Salvar
+            </button>
+            <button
+              onClick={goBack}
+              className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-bold text-foreground active:scale-95"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Voltar
+            </button>
+          </div>
         </div>
       </section>
 
