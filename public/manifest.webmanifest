@@ -1,0 +1,12 @@
+{
+  "name": "Álbum Copa 2026",
+  "short_name": "Álbum 2026",
+  "description": "Controle seu álbum da Copa do Mundo FIFA 2026 no celular",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c1f3d",
+  "theme_color": "#1d6f3c",
+  "icons": [
+    { "src": "/img/home.webp", "sizes": "512x512", "type": "image/webp", "purpose": "any" }
+  ]
+}
