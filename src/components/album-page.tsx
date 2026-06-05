@@ -90,8 +90,8 @@ function AlbumContent({ tipo }: { tipo: "A" | "R" }) {
   return (
     <>
 <section 
-        className="sticky z-20 border-b-2 border-border bg-background px-3 py-2.5 shadow-md"
-        style={{ top: "calc(var(--sat, 0px) + 3.5rem)" }} 
+        className="sticky z-20 border-b-2 border-border bg-background px-3 py-2.5 shadow-md -mt-1"
+		style={{ top: "3.5rem" }}
       >
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">

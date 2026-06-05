@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-	<main className="flex-1 overflow-x-hidden pt-3 pb-24 relative z-10">{children}</main>
+	<main className="flex-1 overflow-x-hidden pb-24 relative z-10">{children}</main>
 
       <nav
         className="safe-bottom fixed inset-x-0 bottom-0 z-30 text-primary-foreground shadow-[var(--shadow-card)]"
