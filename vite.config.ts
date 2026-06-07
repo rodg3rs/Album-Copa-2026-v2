@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Adicione este bloco abaixo para liberar o host do Render:
+  vite: {
+    preview: {
+      allowedHosts: ['.onrender.com', 'album-copa-2026-v2.onrender.com']
+    },
+    server: {
+      allowedHosts: ['.onrender.com', 'album-copa-2026-v2.onrender.com']
+    }
+  }
 });
