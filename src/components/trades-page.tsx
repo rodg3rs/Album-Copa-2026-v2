@@ -69,19 +69,15 @@ function TradesContent({ mode }: { mode: "quero" | "troco" }) {
     return { team: groupKey, cells: Array.from({ length: 20 }, (_, i) => String(i + 1)) };
   };
 
- return (
+  return (
     <>
-      {/* 1. PAINEL FIXO: Ajustado para colar perfeitamente no cabeçalho verde */}
-      <section 
-        className="sticky z-25 border-b-2 border-border bg-background px-3 py-2.5 shadow-md"
-        style={{ top: "3.5rem" }}
-      >
+      <section className="sticky top-[56px] z-20 border-b-2 border-border bg-background px-3 py-1.5 shadow-sm">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-black leading-tight text-foreground">{title}</h2>
           <p className="min-w-0 flex-1 truncate text-[10px] leading-tight text-muted-foreground">{subtitle}</p>
           <button
             onClick={goBack}
-            className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-bold text-foreground active:scale-95 shrink-0"
+            className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-bold text-foreground active:scale-95"
           >
             <ArrowLeft className="h-3 w-3" />
             Voltar
@@ -98,11 +94,8 @@ function TradesContent({ mode }: { mode: "quero" | "troco" }) {
         )}
       </section>
 
-      {/* 2. ÁREA DE CONTEÚDO / LISTAGEM */}
       {loading ? (
-        <div className="grid min-h-[40vh] place-items-center">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        </div>
+        <div className="grid min-h-[40vh] place-items-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : orderedTeams.length === 0 ? (
         <div className="px-6 py-16 text-center">
           <p className="text-sm text-muted-foreground">
@@ -112,8 +105,7 @@ function TradesContent({ mode }: { mode: "quero" | "troco" }) {
           </p>
         </div>
       ) : (
-        {/* Adicionado o pt-4, bg-background e z-10 para a lista correr por baixo corretamente */}
-        <div className="divide-y divide-border pt-4 bg-background relative z-10">
+        <div className="divide-y divide-border">
           {orderedTeams.map((groupKey) => {
             const { team, cells } = groupCells(groupKey);
             const nums = byTeam[team].nums;
@@ -141,7 +133,7 @@ function TradesContent({ mode }: { mode: "quero" | "troco" }) {
                         key={num}
                         title={on ? `${label} ${num} — ${owners!.join(", ")}` : `${label} ${num}`}
                         className={
-                          "flex aspect-square min-w-0 items-center justify-center rounded text-[10px] font-bold leading-none transition-all active:scale-90 " +
+                          "flex aspect-square min-w-0 items-center justify-center rounded text-[10px] font-bold leading-none transition-all " +
                           (on
                             ? mode === "quero"
                               ? "bg-[color:var(--gold)] text-[color:var(--gold-foreground)] shadow-inner"

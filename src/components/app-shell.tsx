@@ -20,10 +20,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header
-        className="safe-top sticky top-0 z-30 px-4 pb-3 pt-2 text-primary-foreground shadow-[var(--shadow-card)]"
+        className="sticky top-0 z-30 flex h-14 items-center px-4 text-primary-foreground shadow-[var(--shadow-card)]"
         style={{ background: "var(--gradient-hero)" }}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-[color:var(--gold)] text-[color:var(--gold-foreground)] font-black">⚽</span>
             <div className="leading-tight">
@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-	<main className="flex-1 overflow-x-hidden pb-24 relative z-10">{children}</main>
+      <main className="flex-1 overflow-x-hidden pb-24">{children}</main>
 
       <nav
         className="safe-bottom fixed inset-x-0 bottom-0 z-30 text-primary-foreground shadow-[var(--shadow-card)]"
